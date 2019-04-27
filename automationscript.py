@@ -1,7 +1,6 @@
 #               ---------TO DO --------------
 
-#make system argv input enter 
-#add gridsearch(pdq selection) to arima
+#make system argv input enter(param_temp,range_temp,ip_addr,itemid,saveoutput_graphs) 
 #add plot labels
 #data persentage between train and prediction
 # 				--------- TO DO ------------
@@ -19,12 +18,11 @@ from math import sqrt
 import os
 import itertools
 import warnings
-from RegscorePy import *
 
 
 # PART 1
 #zabbix server url
-zapi = ZabbixAPI("yourmachineip/zabbix") 
+zapi = ZabbixAPI("http://192.168.56.101/zabbix") 
 #zabbix creds
 zapi.login("Admin", "zabbix")
 
@@ -41,6 +39,8 @@ iterator = 0
 global param_temp
 global aic_temp
 global mse_temp
+global range_temp
+range_temp = 8
 
 
 #while loop to check if filename allready exists
@@ -90,7 +90,7 @@ tseries = pd.read_csv(filename, index_col = 'clock')
 tseries_parsed = tseries[tseries.columns[2]]
 print(tseries_parsed.head())
 
-tseries_parsed.plot()
+tseries_parsed.plot(color = 'green')
 
 
 #2.1
@@ -100,14 +100,14 @@ tseries_parsed_diff = tseries_parsed.diff(periods = 5)
 
 #we extract NaN values out
 tseries_parsed_diff = tseries_parsed_diff[5:]
-tseries_parsed_diff.plot()
+tseries_parsed_diff.plot(color = 'purple')
 
 
 
 #2.2
 #autocorrelation plots before and after diff,so we can observe data
 plot_acf(tseries_parsed, color = 'gray')
-plot_acf(tseries_parsed_diff, color= 'green')
+plot_acf(tseries_parsed_diff, color= 'brown')
 
 
 #2.3
@@ -138,7 +138,7 @@ predictions = []
 warnings.filterwarnings('ignore')
 
 #we can appends this range to find best combination if we havent yet.
-p=d=q= range(0,6)
+p=d=q= range(0,range_temp)
 
 pdq = list(itertools.product(p,d,q))
 print(pdq)
@@ -161,18 +161,22 @@ for param in pdq:
 			mse_temp = mean_squared_error
 			param_temp = param
 			aic_temp = model_arima_fit.aic
-			print("Better parameter combination found!")
 		elif aic_temp > model_arima_fit.aic & model_arima_fit.aic < 0:
 			mse_temp = mean_squared_error
 			param_temp = param
 			aic_temp = model_arima_fit.aic
 	except:
 		continue
+print("\n\nDENEME")
+print(mse_temp,param_temp,aic_temp)
 
+
+
+#----------------------END----------------------
 
 #after determination of best parameter combination,we plot the graph
 
-#----------------------END----------------------
+
 
 #PART 4
 #ARIMA Model First Part(Auto Regression(AR))
@@ -198,7 +202,6 @@ predictions = model_arima_fit.forecast(steps = 49)[0]
 #test as red,predictions as yellow color
 plt.plot(test,color = 'red')
 plt.plot(predictions, color ='blue')
-plt.show()
 
 #4.3
 
