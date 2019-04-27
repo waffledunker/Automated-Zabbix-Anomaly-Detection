@@ -24,7 +24,7 @@ from RegscorePy import *
 
 # PART 1
 #zabbix server url
-zapi = ZabbixAPI("http://192.168.56.101/zabbix") 
+zapi = ZabbixAPI("yourmachineip/zabbix") 
 #zabbix creds
 zapi.login("Admin", "zabbix")
 
