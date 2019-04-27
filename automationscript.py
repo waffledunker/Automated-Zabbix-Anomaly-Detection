@@ -23,7 +23,7 @@ import warnings
 
 # PART 1
 #zabbix server url
-zapi = ZabbixAPI("http://192.168.56.101/zabbix") 
+zapi = ZabbixAPI("http://yourmachineip/zabbix") 
 #zabbix creds
 zapi.login("Admin", "zabbix")
 
@@ -52,6 +52,8 @@ while bool_value:
 filename = "zabbixdata_%d_.json" % iterator
 #ForecastCPU values(float) sorted by clock,json data. (select itemid,key_,name from items where key_="anything";)
 #select itemid,name,key_ form items; to display full list of items.
+
+#specify itemid which you want to predict
 for h in zapi.history.get(history='0',itemids='23725', sortfield='clock', sortorder='DESC',limit=500):
 	#convert dict data to json 
 	h = json.dumps(dict(h))
